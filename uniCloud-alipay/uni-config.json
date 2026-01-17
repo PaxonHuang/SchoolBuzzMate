@@ -1,0 +1,32 @@
+{
+  "dependences": [],
+  "cloudfunctionRoot": "uniCloud/cloudfunctions/",
+  "cloudfunction-config": [
+    {
+      "name": "uni-id-cf",
+      "title": "uni-id认证云函数"
+    },
+    {
+      "name": "createPayment",
+      "title": "创建支付订单"
+    }
+  ],
+  "mp-weixin": {
+    "oauth": {
+      "weixin": {
+        "appid": "YOUR_WECHAT_APPID",
+        "appsecret": "YOUR_WECHAT_APPSECRET"
+      }
+    },
+    "oauthWeixin": {
+      "appid": "YOUR_WECHAT_APPID",
+      "appsecret": "YOUR_WECHAT_APPSECRET"
+    }
+  },
+  "package": "com.uni.campus.quickmatch",
+  "setting": {
+    "urlCheck": false
+  },
+  "projectname": "campus-quick-match",
+  "compileType": "miniprogram"
+}

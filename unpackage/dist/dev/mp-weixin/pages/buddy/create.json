@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "发布找搭子",
+  "usingComponents": {
+    "brutalist-card": "../../components/brutalist/BrutalistCard",
+    "brutalist-button": "../../components/brutalist/BrutalistButton",
+    "brutalist-input": "../../components/brutalist/BrutalistInput"
+  }
+}

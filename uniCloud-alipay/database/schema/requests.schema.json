@@ -1,0 +1,114 @@
+{
+  "bsonType": "object",
+  "required": ["type", "title", "creator"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "update": "doc.creator == auth.uid",
+    "delete": "doc.creator == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "description": "请求ID"
+    },
+    "type": {
+      "bsonType": "string",
+      "description": "请求类型",
+      "enum": ["buddy", "delivery", "carpool", "print", "secondhand"]
+    },
+    "title": {
+      "bsonType": "string",
+      "description": "请求标题",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "description": {
+      "bsonType": "string",
+      "description": "详细描述",
+      "maxLength": 500
+    },
+    "location": {
+      "bsonType": "object",
+      "description": "地理位置",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "bsonType": "string",
+          "enum": ["Point"]
+        },
+        "coordinates": {
+          "bsonType": "array",
+          "description": "经纬度坐标 [longitude, latitude]",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "bsonType": "double"
+          }
+        }
+      }
+    },
+    "time": {
+      "bsonType": "timestamp",
+      "description": "约定时间"
+    },
+    "maxParticipants": {
+      "bsonType": "int",
+      "description": "最大参与人数",
+      "minimum": 1
+    },
+    "status": {
+      "bsonType": "string",
+      "description": "请求状态",
+      "enum": ["open", "filled", "completed"],
+      "defaultValue": "open"
+    },
+    "tags": {
+      "bsonType": "array",
+      "description": "标签列表",
+      "items": {
+        "bsonType": "string"
+      }
+    },
+    "creator": {
+      "bsonType": "string",
+      "description": "创建者ID",
+      "foreignKey": "users._id"
+    },
+    "createTime": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "updateTime": {
+      "bsonType": "timestamp",
+      "description": "更新时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    },
+    "print": {
+      "bsonType": "object",
+      "description": "打印相关信息",
+      "properties": {
+        "fileId": {
+          "bsonType": "string",
+          "description": "文件ID"
+        },
+        "shop": {
+          "bsonType": "string",
+          "description": "打印店"
+        },
+        "option": {
+          "bsonType": "string",
+          "description": "打印选项"
+        },
+        "copies": {
+          "bsonType": "int",
+          "description": "份数"
+        }
+      }
+    }
+  }
+}

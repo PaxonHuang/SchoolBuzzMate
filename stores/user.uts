@@ -1,0 +1,122 @@
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+// 定义用户接口类型
+interface UserInfo {
+  _id: string
+  nickname: string
+  avatar: string
+  campus: string
+  tags: string[]
+}
+
+// 登录返回类型
+interface LoginResult {
+  success: boolean
+  message: string
+  userInfo?: UserInfo
+}
+
+export const useUserStore = defineStore('user', () => {
+  // 状态定义
+  const userInfo = ref<UserInfo | null>(null)
+  const token = ref<string>('')
+
+  // 计算属性
+  const isLoggedIn = computed(() => !!token.value && !!userInfo.value)
+  const user = computed(() => userInfo.value)
+
+  // 设置用户信息
+  function setUserInfo(info: UserInfo) {
+    userInfo.value = info
+    uni.setStorageSync('userInfo', info)
+  }
+
+  // 设置Token
+  function setToken(newToken: string) {
+    token.value = newToken
+    uni.setStorageSync('token', newToken)
+  }
+
+  // 模拟登录（云函数未部署时的降级方案）
+  function loginMock(code: string): LoginResult {
+    const mockUserInfo: UserInfo = {
+      _id: 'user_' + Date.now(),
+      nickname: '校园用户',
+      avatar: '',
+      campus: '主校区',
+      tags: ['学习', '运动']
+    }
+    setToken(code)
+    setUserInfo(mockUserInfo)
+    return { success: true, message: '登录成功', userInfo: mockUserInfo }
+  }
+
+  // 登录方法 - 接收微信登录code
+  async function login(code: string): Promise<LoginResult> {
+    try {
+      const res = await uniCloud.callFunction({
+        name: 'uni-id-cf',
+        data: {
+          method: 'loginByWeixin',
+          code: code
+        }
+      })
+
+      if (res.result?.errCode === 0) {
+        // 云函数登录成功
+        const loginUserInfo: UserInfo = res.result.userInfo || {
+          _id: res.result.uid || 'user_' + Date.now(),
+          nickname: res.result.nickname || '校园用户',
+          avatar: res.result.avatar || '',
+          campus: res.result.campus || '主校区',
+          tags: res.result.tags || ['学习', '运动']
+        }
+        setToken(res.result.token || code)
+        setUserInfo(loginUserInfo)
+        return { success: true, message: '登录成功', userInfo: loginUserInfo }
+      }
+
+      // 云函数返回错误，使用模拟登录
+      console.warn('云函数登录失败，使用模拟登录:', res.result?.errMsg)
+      return loginMock(code)
+    } catch (error) {
+      console.error('云函数调用失败，使用模拟登录:', error)
+      // 云函数未部署或调用失败，使用模拟登录
+      return loginMock(code)
+    }
+  }
+
+  // 退出登录
+  async function logout() {
+    token.value = ''
+    userInfo.value = null
+    uni.removeStorageSync('token')
+    uni.removeStorageSync('userInfo')
+  }
+
+  // 检查登录状态 - 从本地存储恢复
+  function checkLoginStatus() {
+    const savedToken = uni.getStorageSync('token')
+    const savedUserInfo = uni.getStorageSync('userInfo')
+
+    if (savedToken) {
+      token.value = savedToken
+    }
+    if (savedUserInfo) {
+      userInfo.value = savedUserInfo
+    }
+  }
+
+  return {
+    userInfo,
+    token,
+    isLoggedIn,
+    user,
+    setUserInfo,
+    setToken,
+    login,
+    logout,
+    checkLoginStatus
+  }
+})

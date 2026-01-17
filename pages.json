@@ -1,0 +1,115 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "校趣闪搭"
+      }
+    },
+    {
+      "path": "pages/buddy/index",
+      "style": {
+        "navigationBarTitleText": "找搭子"
+      }
+    },
+    {
+      "path": "pages/buddy/create",
+      "style": {
+        "navigationBarTitleText": "发布找搭子"
+      }
+    },
+    {
+      "path": "pages/buddy/detail",
+      "style": {
+        "navigationBarTitleText": "找搭子详情"
+      }
+    },
+    {
+      "path": "pages/delivery/index",
+      "style": {
+        "navigationBarTitleText": "跑腿"
+      }
+    },
+    {
+      "path": "pages/delivery/create",
+      "style": {
+        "navigationBarTitleText": "发布跑腿"
+      }
+    },
+    {
+      "path": "pages/delivery/detail",
+      "style": {
+        "navigationBarTitleText": "跑腿详情"
+      }
+    },
+    {
+      "path": "pages/print/index",
+      "style": {
+        "navigationBarTitleText": "云打印"
+      }
+    },
+    {
+      "path": "pages/print/create",
+      "style": {
+        "navigationBarTitleText": "发布打印"
+      }
+    },
+    {
+      "path": "pages/forum/index",
+      "style": {
+        "navigationBarTitleText": "校园论坛"
+      }
+    },
+    {
+      "path": "pages/forum/create",
+      "style": {
+        "navigationBarTitleText": "发布帖子"
+      }
+    },
+    {
+      "path": "pages/forum/detail",
+      "style": {
+        "navigationBarTitleText": "帖子详情"
+      }
+    },
+    {
+      "path": "pages/chat/index",
+      "style": {
+        "navigationBarTitleText": "消息中心"
+      }
+    },
+    {
+      "path": "pages/payment/index",
+      "style": {
+        "navigationBarTitleText": "订单支付"
+      }
+    }
+  ],
+  "tabBar": {
+    "custom": true,
+    "color": "#000000",
+    "selectedColor": "#4CAF50",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/buddy/index",
+        "text": "找搭子"
+      },
+      {
+        "pagePath": "pages/delivery/index",
+        "text": "跑腿"
+      },
+      {
+        "pagePath": "pages/forum/index",
+        "text": "论坛"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationStyle": "custom"
+  }
+}

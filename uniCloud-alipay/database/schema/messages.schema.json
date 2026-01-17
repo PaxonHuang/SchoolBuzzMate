@@ -1,0 +1,35 @@
+{
+  "bsonType": "object",
+  "required": ["content", "sender", "receiver", "timestamp", "read"],
+  "permission": {
+    "read": "auth.uid != null",
+    "create": "auth.uid != null",
+    "update": "doc.sender == auth.uid",
+    "delete": "doc.sender == auth.uid"
+  },
+  "properties": {
+    "content": {
+      "description": "消息内容",
+      "bsonType": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "sender": {
+      "description": "发送者ID",
+      "bsonType": "string"
+    },
+    "receiver": {
+      "description": "接收者ID",
+      "bsonType": "string"
+    },
+    "timestamp": {
+      "description": "发送时间戳",
+      "bsonType": "int"
+    },
+    "read": {
+      "description": "是否已读",
+      "bsonType": "bool",
+      "title": "是否已读"
+    }
+  }
+}

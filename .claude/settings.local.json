@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__take_snapshot",
+      "Skill(SKII2brutalist-handdrawn-ui)",
+      "WebSearch",
+      "Skill(Skill1UTSandVue3CompositionAPIMastery)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(done)",
+      "Skill(frontend-design:frontend-design)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)"
+    ]
+  }
+}
