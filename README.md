@@ -3,14 +3,10 @@
 ## 项目概述
 校园社交系统（校趣闪搭）基于 UniAPP + Vue3 + UniCloud，支持微信小程序与 H5，集成 uni-id 统一身份认证、uni-admin 管理后台。
 ## 图片预览
-![主页](https://njts1-1332869940.cos.ap-shanghai.myqcloud.com/IMG_4132.png)
-![找搭子](https://njts1-1332869940.cos.ap-shanghai.myqcloud.com/IMG_4133.png)
-![跑腿](https://njts1-1332869940.cos.ap-shanghai.myqcloud.com/IMG_4134.png)
-![论坛](https://njts1-1332869940.cos.ap-shanghai.myqcloud.com/IMG_4136.png)
+<img src="https://njts1-1332869940.cos.ap-shanghai.myqcloud.com/mergeSchoolBuzz.JPG" style="zoom: 25%;" />
 
+# 技术栈
 
-
-## 技术栈
 - 前端：UniAPP (Vue3)
 - 后端：UniCloud 阿里云
 - 认证：uni-id（微信小程序登录、短信验证码登录）
