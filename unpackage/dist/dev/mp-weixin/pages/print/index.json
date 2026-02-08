@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "云打印",
-  "usingComponents": {
-    "brutalist-card": "../../components/brutalist/BrutalistCard",
-    "brutalist-button": "../../components/brutalist/BrutalistButton"
-  }
-}

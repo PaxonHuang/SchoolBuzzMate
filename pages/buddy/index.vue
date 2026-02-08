@@ -97,6 +97,7 @@
 
 <script setup lang="uts">
 import { ref, computed, onMounted } from 'vue'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import BrutalistCard from '@/components/brutalist/BrutalistCard.vue'
 import BrutalistButton from '@/components/brutalist/BrutalistButton.vue'
@@ -228,43 +229,65 @@ async function loadRequests() {
     const db = uniCloud.database()
     const res = await db.collection('requests')
       .where({
-        type: 'buddy',
-        status: 'open'
+        type: 'buddy'
       })
-      .orderBy('createTime', 'desc')
+      .orderBy('createTime desc', 'desc')
       .get()
 
-    requests.value = res.data as Request[]
+    const data = res.data as Request[]
+    requests.value = data.map(item => ({
+      ...item,
+      createTime: item.createTime || Date.now()
+    }))
   } catch (e) {
     console.error('加载失败:', e)
-    // 使用模拟数据
-    requests.value = [
-      {
-        _id: '1',
-        title: '图书馆约自习',
-        description: '明天下午2点，图书馆三楼自习区，有没有一起复习高数的同学？',
-        tags: ['学习', '图书馆', '自习'],
-        status: 'open',
-        createTime: Date.now() - 3600000,
-        maxParticipants: 4,
-        creator: 'user1'
-      },
-      {
-        _id: '2',
-        title: '篮球3v3缺人',
-        description: '今晚6点体育馆，还差一个人，会打的来！',
-        tags: ['运动', '篮球'],
-        status: 'open',
-        createTime: Date.now() - 7200000,
-        maxParticipants: 6,
-        creator: 'user2'
-      }
-    ] as Request[]
+    const localData = uni.getStorageSync('mock_requests') || []
+    requests.value = localData.map((item: any) => ({
+      ...item,
+      createTime: item.createTime || Date.now()
+    }))
+
+    if (requests.value.length === 0) {
+      requests.value = [
+        {
+          _id: '1',
+          title: '图书馆约自习',
+          description: '明天下午2点，图书馆三楼自习区，有没有一起复习高数的同学？',
+          tags: ['学习', '图书馆', '自习'],
+          status: 'open',
+          createTime: Date.now() - 3600000,
+          maxParticipants: 4,
+          creator: 'user1'
+        },
+        {
+          _id: '2',
+          title: '篮球3v3缺人',
+          description: '今晚6点体育馆，还差一个人，会打的来！',
+          tags: ['运动', '篮球'],
+          status: 'open',
+          createTime: Date.now() - 7200000,
+          maxParticipants: 6,
+          creator: 'user2'
+        }
+      ] as Request[]
+    }
   }
 }
 
 onMounted(() => {
   loadRequests()
+})
+
+// 页面显示时刷新列表（从创建页面返回时触发）
+onShow(() => {
+  loadRequests()
+})
+
+// 下拉刷新
+onPullDownRefresh(async () => {
+  await loadRequests()
+  // 停止下拉刷新动画
+  uni.stopPullDownRefresh()
 })
 </script>
 

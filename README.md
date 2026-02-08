@@ -1,10 +1,11 @@
 # 校趣闪搭校园服务平台
 
-基于 UniAppX + UniCloud 的校园生活服务平台，采用 Brutalist 手绘风格设计。
+ 。
 
 ## 项目概述
 
 校趣闪搭是一个为校园学生提供全方位服务的平台，包括：
+
 - **找搭子**：寻找学习伙伴、运动搭档
 - **外卖跑腿**：代取快递、食堂带饭
 - **云打印**：文件上传、就近打印
@@ -13,18 +14,21 @@
 ## 技术栈
 
 ### 前端技术
+
 - **框架**: UniAppX (支持多端发布)
 - **语言**: UTS (UniApp TypeScript) + Vue 3 Composition API
 - **状态管理**: Pinia
 - **UI设计**: Brutalist 手绘风格（粗黑边框、不规则线条、大胆色块）
 
 ### 后端技术
+
 - **云服务**: UniCloud (阿里云/腾讯云)
 - **数据库**: UniCloud DB (NoSQL 文档型数据库)
 - **认证**: uni-id (统一用户认证)
 - **支付**: uni-pay (微信支付集成)
 
 ### 核心特性
+
 - ✅ **UTS 类型安全**：所有组件使用 `<script setup lang="uts">` 强制类型检查
 - ✅ **Brutalist UI 一致性**：通过统一组件库确保界面一致性
 - ✅ **支付闭环**：完整的沙箱环境支付流程
@@ -68,6 +72,7 @@ E:\codeplace\test\
 ## 数据库设计
 
 ### users 集合（用户信息）
+
 ```typescript
 interface User {
   _id: string
@@ -82,6 +87,7 @@ interface User {
 ```
 
 ### requests 集合（需求请求）
+
 ```typescript
 interface Request {
   _id: string
@@ -100,6 +106,7 @@ interface Request {
 ```
 
 ### orders 集合（订单）
+
 ```typescript
 interface Order {
   _id: string
@@ -113,6 +120,7 @@ interface Order {
 ```
 
 ### messages 集合（消息）
+
 ```typescript
 interface Message {
   _id: string
@@ -127,6 +135,7 @@ interface Message {
 ## 快速开始
 
 ### 环境要求
+
 - Node.js >= 16.x
 - HBuilderX (推荐最新版本)
 - 微信开发者工具
@@ -134,27 +143,32 @@ interface Message {
 ### 安装步骤
 
 1. **克隆项目**
+
 ```bash
 git clone <repository-url>
 cd campus-quick-match
 ```
 
 2. **安装依赖**
+
 ```bash
 npm install
 ```
 
 3. **配置 UniCloud**
+
 - 在 HBuilderX 中打开项目
 - 右键 `uniCloud` 目录 → "关联云服务空间"
 - 选择或创建阿里云/腾讯云服务空间
 
 4. **配置微信小程序**
+
 - 修改 `manifest.json` 中的 `appid`
 - 配置 `uniCloud/uni-config.json` 中的微信 AppID 和 AppSecret
 - 在微信公众平台配置服务器域名
 
 5. **运行项目**
+
 ```bash
 # 开发模式（运行到微信小程序）
 npm run dev:mp-weixin
@@ -166,6 +180,7 @@ npm run build:mp-weixin
 ### 环境变量配置
 
 在 `uniCloud/uni-config.json` 中配置：
+
 ```json
 {
   "mp-weixin": {
@@ -182,31 +197,37 @@ npm run build:mp-weixin
 ## 核心功能实现
 
 ### 1. 用户认证（uni-id）
+
 - 使用 uni-id 统一认证体系
 - 支持微信小程序登录
 - 云函数：`uni-id-cf`
 
 ### 2. 找搭子模块
+
 - 标签匹配算法：根据用户标签和需求标签进行匹配
 - 地理位置过滤：使用 GeoPoint 进行位置查询
 - 状态管理：open → filled → completed
 
 ### 3. 外卖跑腿模块
+
 - 状态机管理：open → in_progress → completed
 - 防重复提交机制
 - 订单状态同步
 
 ### 4. 云打印模块
+
 - 文件上传至 UniCloud 云存储
 - 打印参数校验（双面/彩印）
 - 价格计算逻辑
 
 ### 5. 支付系统（uni-pay）
+
 - 微信支付集成
 - 支付回调处理
 - 交易状态同步
 
 ### 6. 实时消息系统
+
 - 使用 UniCloud 消息队列
 - 未读消息计数
 - 实时消息推送
@@ -214,6 +235,7 @@ npm run build:mp-weixin
 ## Brutalist UI 设计规范
 
 ### 颜色方案
+
 ```scss
 $black: #000;
 $white: #fff;
@@ -221,6 +243,7 @@ $white: #fff;
 ```
 
 ### 组件样式示例
+
 ```scss
 .brutalist-card {
   border: 4rpx solid $black;
@@ -232,6 +255,7 @@ $white: #fff;
 ```
 
 ### 手绘图标
+
 - 使用内联 SVG
 - 关键属性：`stroke-width="1.5" vector-effect="non-scaling-stroke"`
 - 不规则路径模拟手绘效果
@@ -239,7 +263,9 @@ $white: #fff;
 ## 开发规范
 
 ### UTS 类型安全
+
 所有组件必须使用 `<script setup lang="uts">`：
+
 ```vue
 <script setup lang="uts">
 interface Props {
@@ -251,10 +277,12 @@ const props = defineProps<Props>()
 ```
 
 ### 组件命名
+
 - 页面组件：PascalCase（如 `BuddyList.vue`）
 - 功能组件：Brutalist 前缀（如 `BrutalistCard.vue`）
 
 ### 代码风格
+
 - 使用 Composition API
 - 优先使用 `ref`、`computed`、`watch`
 - 事件处理使用 `emit` 定义
@@ -262,12 +290,14 @@ const props = defineProps<Props>()
 ## 部署流程
 
 1. **上传云函数**
+
 ```bash
 # 在 HBuilderX 中右键云函数目录
 # 选择 "上传部署"
 ```
 
 2. **初始化数据库**
+
 ```bash
 # 在 UniCloud Web 控制台
 # 创建数据库集合：users, requests, orders, messages
@@ -275,6 +305,7 @@ const props = defineProps<Props>()
 ```
 
 3. **发布小程序**
+
 ```bash
 # 1. 运行到微信开发者工具
 npm run dev:mp-weixin
@@ -287,13 +318,16 @@ npm run dev:mp-weixin
 ## 测试
 
 ### 沙箱环境测试
+
 在微信开发者工具中进行：
+
 - 用户登录流程
 - 发布需求功能
 - 支付流程（使用测试账号）
 - 消息收发
 
 ### 关键验证点
+
 - ✅ UTS 类型安全：所有组件通过类型检查
 - ✅ UI 一致性：所有页面使用 Brutalist 组件
 - ✅ 支付闭环：完成沙箱环境支付全流程
@@ -301,19 +335,25 @@ npm run dev:mp-weixin
 ## 常见问题
 
 ### 1. 云函数调用失败
+
 检查：
+
 - 云函数是否已上传
 - 服务空间是否关联
 - 权限配置是否正确
 
 ### 2. 数据库操作失败
+
 检查：
+
 - Schema 是否已创建
 - 权限规则是否正确
 - 数据格式是否匹配
 
 ### 3. 支付失败
+
 检查：
+
 - uni-pay 配置是否正确
 - 商户号配置是否正确
 - 回调 URL 是否可访问

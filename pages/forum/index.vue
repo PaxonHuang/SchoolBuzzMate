@@ -61,16 +61,16 @@
           <text class="post-content">{{ post.content }}</text>
 
           <!-- 帖子图片 -->
-          <view v-if="post.images && post.images.length > 0" class="post-images">
+          <view v-if="post.images?.length > 0" class="post-images">
             <view
-              v-for="(img, index) in post.images.slice(0, 3)"
+              v-for="(img, index) in (post.images || []).slice(0, 3)"
               :key="index"
               class="image-wrapper"
             >
               <image class="post-image" :src="img" mode="aspectFill" />
             </view>
-            <view v-if="post.images.length > 3" class="more-images">
-              <text>+{{ post.images.length - 3 }}</text>
+            <view v-if="(post.images?.length || 0) > 3" class="more-images">
+              <text>+{{ (post.images?.length || 0) - 3 }}</text>
             </view>
           </view>
 
@@ -114,6 +114,7 @@
 
 <script setup lang="uts">
 import { ref, computed, onMounted } from 'vue'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import BrutalistCard from '@/components/brutalist/BrutalistCard.vue'
 import BrutalistButton from '@/components/brutalist/BrutalistButton.vue'
@@ -206,50 +207,73 @@ async function loadPosts() {
   try {
     const db = uniCloud.database()
     const res = await db.collection('posts')
-      .orderBy('createTime', 'desc')
+      .orderBy('createTime desc', 'desc')
       .limit(20)
       .get()
 
-    posts.value = res.data as Post[]
+    const data = res.data as Post[]
+    posts.value = data.map(item => ({
+      ...item,
+      createTime: item.createTime || Date.now()
+    }))
   } catch (e) {
     console.error('加载失败:', e)
-    // 使用模拟数据
-    posts.value = [
-      {
-        _id: '1',
-        title: '图书馆约学习搭子',
-        content: '明天下午2点，图书馆三楼，有没有一起复习高数的同学？',
-        creatorName: '学习达人',
-        creatorAvatar: '',
-        categoryName: '学习交流',
-        category: 'study',
-        images: [],
-        viewCount: 128,
-        commentCount: 15,
-        likeCount: 32,
-        createTime: Date.now() - 3600000,
-        pinned: true
-      },
-      {
-        _id: '2',
-        title: '食堂二楼新开的麻辣烫好评！',
-        content: '今天试了二楼新开的麻辣烫，味道很不错，推荐大家去试试~',
-        creatorName: '美食探索家',
-        creatorAvatar: '',
-        categoryName: '校园生活',
-        category: 'life',
-        images: [],
-        viewCount: 256,
-        commentCount: 42,
-        likeCount: 88,
-        createTime: Date.now() - 7200000
-      }
-    ] as Post[]
+    const localData = uni.getStorageSync('mock_posts') || []
+    posts.value = localData.map((item: any) => ({
+      ...item,
+      createTime: item.createTime || Date.now()
+    }))
+
+    if (posts.value.length === 0) {
+      posts.value = [
+        {
+          _id: '1',
+          title: '图书馆约学习搭子',
+          content: '明天下午2点，图书馆三楼，有没有一起复习高数的同学？',
+          creatorName: '学习达人',
+          creatorAvatar: '',
+          categoryName: '学习交流',
+          category: 'study',
+          images: [],
+          viewCount: 128,
+          commentCount: 15,
+          likeCount: 32,
+          createTime: Date.now() - 3600000,
+          pinned: true
+        },
+        {
+          _id: '2',
+          title: '食堂二楼新开的麻辣烫好评！',
+          content: '今天试了二楼新开的麻辣烫，味道很不错，推荐大家去试试~',
+          creatorName: '美食探索家',
+          creatorAvatar: '',
+          categoryName: '校园生活',
+          category: 'life',
+          images: [],
+          viewCount: 256,
+          commentCount: 42,
+          likeCount: 88,
+          createTime: Date.now() - 7200000
+        }
+      ] as Post[]
+    }
   }
 }
 
 onMounted(() => {
   loadPosts()
+})
+
+// 页面显示时刷新列表（从创建页面返回时触发）
+onShow(() => {
+  loadPosts()
+})
+
+// 下拉刷新
+onPullDownRefresh(async () => {
+  await loadPosts()
+  // 停止下拉刷新动画
+  uni.stopPullDownRefresh()
 })
 </script>
 

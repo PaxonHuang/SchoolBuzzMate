@@ -11,7 +11,8 @@
       "Bash(done)",
       "Skill(frontend-design:frontend-design)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(rm:*)"
     ]
   }
 }

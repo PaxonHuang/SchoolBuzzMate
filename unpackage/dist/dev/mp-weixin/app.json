@@ -7,16 +7,14 @@
     "pages/delivery/index",
     "pages/delivery/create",
     "pages/delivery/detail",
-    "pages/print/index",
-    "pages/print/create",
     "pages/forum/index",
     "pages/forum/create",
     "pages/forum/detail",
-    "pages/chat/index",
-    "pages/payment/index"
+    "pages/user/index",
+    "pages/messages/index"
   ],
   "window": {
-    "navigationStyle": "custom"
+    "navigationBarTitleText": "校趣闪搭"
   },
   "tabBar": {
     "custom": true,
@@ -39,6 +37,10 @@
       {
         "pagePath": "pages/forum/index",
         "text": "论坛"
+      },
+      {
+        "pagePath": "pages/messages/index",
+        "text": "消息"
       }
     ]
   },

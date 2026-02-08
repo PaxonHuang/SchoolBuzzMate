@@ -1,11 +1,10 @@
 {
   "bsonType": "object",
-  "required": ["uid", "nickname"],
   "permission": {
-    "read": "auth.uid != null",
-    "create": "auth.uid != null",
-    "update": "doc.uid == auth.uid",
-    "delete": "doc.uid == auth.uid"
+    "read": "auth.uid == _id",
+    "create": "auth.uid == null",
+    "update": "auth.uid == _id",
+    "delete": "auth.uid == _id"
   },
   "properties": {
     "_id": {
@@ -13,29 +12,46 @@
     },
     "uid": {
       "bsonType": "string",
-      "description": "uni-id关联ID",
-      "foreignKey": "uni-id-users._id"
+      "description": "uni-id关联ID"
     },
     "nickname": {
       "bsonType": "string",
       "description": "用户昵称",
-      "minLength": 1,
-      "maxLength": 20
+      "maxLength": 50
     },
     "avatar": {
       "bsonType": "string",
       "description": "用户头像URL"
     },
+    "gender": {
+      "bsonType": "string",
+      "description": "性别",
+      "enum": ["male", "female", "secret"],
+      "defaultValue": "secret"
+    },
+    "contact": {
+      "bsonType": "string",
+      "description": "联系方式",
+      "maxLength": 50
+    },
     "campus": {
       "bsonType": "string",
-      "description": "所属校区"
+      "description": "所属校区",
+      "defaultValue": "主校区"
     },
     "tags": {
       "bsonType": "array",
-      "description": "用户标签",
-      "items": {
-        "bsonType": "string"
-      }
+      "description": "用户标签"
+    },
+    "addresses": {
+      "bsonType": "array",
+      "description": "收货地址列表",
+      "arrayType": "object"
+    },
+    "status": {
+      "bsonType": "int",
+      "description": "用户状态",
+      "defaultValue": 1
     },
     "createTime": {
       "bsonType": "timestamp",

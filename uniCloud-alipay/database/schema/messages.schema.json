@@ -1,35 +1,55 @@
 {
   "bsonType": "object",
-  "required": ["content", "sender", "receiver", "timestamp", "read"],
   "permission": {
-    "read": "auth.uid != null",
+    "read": "auth.uid == null || doc.receiver == auth.uid || doc.sender == auth.uid",
     "create": "auth.uid != null",
     "update": "doc.sender == auth.uid",
     "delete": "doc.sender == auth.uid"
   },
   "properties": {
-    "content": {
-      "description": "消息内容",
+    "_id": {
+      "description": "ID"
+    },
+    "type": {
       "bsonType": "string",
+      "description": "消息类型",
+      "enum": ["order", "comment", "like", "system", "chat"]
+    },
+    "title": {
+      "bsonType": "string",
+      "description": "消息标题",
+      "maxLength": 50
+    },
+    "content": {
+      "bsonType": "string",
+      "description": "消息内容",
       "minLength": 1,
       "maxLength": 500
     },
     "sender": {
-      "description": "发送者ID",
-      "bsonType": "string"
+      "bsonType": "string",
+      "description": "发送者ID"
     },
     "receiver": {
-      "description": "接收者ID",
-      "bsonType": "string"
+      "bsonType": "string",
+      "description": "接收者ID"
     },
     "timestamp": {
+      "bsonType": "timestamp",
       "description": "发送时间戳",
-      "bsonType": "int"
+      "forceDefaultValue": {
+        "$env": "now"
+      }
     },
     "read": {
-      "description": "是否已读",
       "bsonType": "bool",
-      "title": "是否已读"
+      "description": "是否已读",
+      "defaultValue": false
+    },
+    "orderInfo": {
+      "bsonType": "string",
+      "description": "订单相关信息"
     }
-  }
+  },
+  "required": ["type", "content", "sender", "receiver"]
 }

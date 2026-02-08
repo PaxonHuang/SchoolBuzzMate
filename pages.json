@@ -3,85 +3,96 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "校趣闪搭"
+        "navigationBarTitleText": "校趣闪搭",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#4ECDC4",
+        "navigationBarTextStyle": "white"
       }
     },
     {
       "path": "pages/buddy/index",
       "style": {
-        "navigationBarTitleText": "找搭子"
+        "navigationBarTitleText": "找搭子",
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "dark",
+        "navigationBarBackgroundColor": "#FFE6F0"
       }
     },
     {
       "path": "pages/buddy/create",
       "style": {
-        "navigationBarTitleText": "发布找搭子"
+        "navigationBarTitleText": "发布找搭子",
+        "enablePullDownRefresh": false
       }
     },
     {
       "path": "pages/buddy/detail",
       "style": {
-        "navigationBarTitleText": "找搭子详情"
+        "navigationBarTitleText": "找搭子详情",
+        "enablePullDownRefresh": false
       }
     },
     {
       "path": "pages/delivery/index",
       "style": {
-        "navigationBarTitleText": "跑腿"
+        "navigationBarTitleText": "跑腿",
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "dark",
+        "navigationBarBackgroundColor": "#FFF9E6"
       }
     },
     {
       "path": "pages/delivery/create",
       "style": {
-        "navigationBarTitleText": "发布跑腿"
+        "navigationBarTitleText": "发布跑腿",
+        "enablePullDownRefresh": false
       }
     },
     {
       "path": "pages/delivery/detail",
       "style": {
-        "navigationBarTitleText": "跑腿详情"
-      }
-    },
-    {
-      "path": "pages/print/index",
-      "style": {
-        "navigationBarTitleText": "云打印"
-      }
-    },
-    {
-      "path": "pages/print/create",
-      "style": {
-        "navigationBarTitleText": "发布打印"
+        "navigationBarTitleText": "跑腿详情",
+        "enablePullDownRefresh": false
       }
     },
     {
       "path": "pages/forum/index",
       "style": {
-        "navigationBarTitleText": "校园论坛"
+        "navigationBarTitleText": "校园论坛",
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "dark",
+        "navigationBarBackgroundColor": "#F0FFF4"
       }
     },
     {
       "path": "pages/forum/create",
       "style": {
-        "navigationBarTitleText": "发布帖子"
+        "navigationBarTitleText": "发布帖子",
+        "enablePullDownRefresh": false
       }
     },
     {
       "path": "pages/forum/detail",
       "style": {
-        "navigationBarTitleText": "帖子详情"
+        "navigationBarTitleText": "帖子详情",
+        "enablePullDownRefresh": false
       }
     },
     {
-      "path": "pages/chat/index",
+      "path": "pages/user/index",
       "style": {
-        "navigationBarTitleText": "消息中心"
+        "navigationBarTitleText": "我的",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#FFF9E6"
       }
     },
     {
-      "path": "pages/payment/index",
+      "path": "pages/messages/index",
       "style": {
-        "navigationBarTitleText": "订单支付"
+        "navigationBarTitleText": "消息中心",
+        "enablePullDownRefresh": true,
+        "backgroundTextStyle": "dark",
+        "navigationBarBackgroundColor": "#FFE6F0"
       }
     }
   ],
@@ -106,10 +117,14 @@
       {
         "pagePath": "pages/forum/index",
         "text": "论坛"
+      },
+      {
+        "pagePath": "pages/messages/index",
+        "text": "消息"
       }
     ]
   },
   "globalStyle": {
-    "navigationStyle": "custom"
+    "navigationBarTitleText": "校趣闪搭"
   }
 }

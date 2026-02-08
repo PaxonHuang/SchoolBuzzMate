@@ -234,7 +234,6 @@ async function submitPost() {
       images: formData.value.images,
       creatorName: userStore.user?.nickname || '校园用户',
       creatorAvatar: userStore.user?.avatar || '',
-      createTime: Date.now(),
       viewCount: 0,
       commentCount: 0,
       likeCount: 0,

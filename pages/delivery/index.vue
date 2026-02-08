@@ -91,6 +91,7 @@
 
 <script setup lang="uts">
 import { ref, computed, onMounted } from 'vue'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import BrutalistCard from '@/components/brutalist/BrutalistCard.vue'
 import BrutalistButton from '@/components/brutalist/BrutalistButton.vue'
@@ -216,40 +217,63 @@ async function loadRequests() {
       .where({
         type: 'delivery'
       })
-      .orderBy('createTime', 'desc')
+      .orderBy('createTime desc', 'desc')
       .get()
 
-    requests.value = res.data as DeliveryRequest[]
+    const data = res.data as DeliveryRequest[]
+    requests.value = data.map(item => ({
+      ...item,
+      createTime: item.createTime || Date.now()
+    }))
   } catch (e) {
     console.error('加载失败:', e)
-    // 使用模拟数据
-    requests.value = [
-      {
-        _id: '1',
-        title: '帮忙取个快递',
-        description: '菜鸟驿站有个中件快递，帮忙取到南区宿舍楼下，感激不尽！',
-        tags: ['取快递'],
-        status: 'open',
-        createTime: Date.now() - 1800000,
-        amount: 5,
-        creator: 'user1'
-      },
-      {
-        _id: '2',
-        title: '二食堂买份黄焖鸡',
-        description: '二食堂黄焖鸡米饭，要微辣，送到图书馆门口。',
-        tags: ['买饭'],
-        status: 'open',
-        createTime: Date.now() - 5400000,
-        amount: 8,
-        creator: 'user2'
-      }
-    ] as DeliveryRequest[]
+    const localData = uni.getStorageSync('mock_requests') || []
+    requests.value = localData.map((item: any) => ({
+      ...item,
+      createTime: item.createTime || Date.now()
+    }))
+
+    if (requests.value.length === 0) {
+      requests.value = [
+        {
+          _id: '1',
+          title: '帮忙取个快递',
+          description: '菜鸟驿站有个中件快递，帮忙取到南区宿舍楼下，感激不尽！',
+          tags: ['取快递'],
+          status: 'open',
+          createTime: Date.now() - 1800000,
+          amount: 5,
+          creator: 'user1'
+        },
+        {
+          _id: '2',
+          title: '二食堂买份黄焖鸡',
+          description: '二食堂黄焖鸡米饭，要微辣，送到图书馆门口。',
+          tags: ['买饭'],
+          status: 'open',
+          createTime: Date.now() - 5400000,
+          amount: 8,
+          creator: 'user2'
+        }
+      ] as DeliveryRequest[]
+    }
   }
 }
 
 onMounted(() => {
   loadRequests()
+})
+
+// 页面显示时刷新列表（从创建页面返回时触发）
+onShow(() => {
+  loadRequests()
+})
+
+// 下拉刷新
+onPullDownRefresh(async () => {
+  await loadRequests()
+  // 停止下拉刷新动画
+  uni.stopPullDownRefresh()
 })
 </script>
 

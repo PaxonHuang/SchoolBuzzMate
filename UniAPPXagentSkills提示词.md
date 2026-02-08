@@ -4,7 +4,7 @@ https://github.com/anthropics/claude-plugins-official
 
 https://claudemarketplaces.com/
 
-生成一个适用于UniAppX的subagent的提示词，该提示词需满足以下条件：
+生成一个适用于UniAppX的subagent的提示词，该提示词需满足以下条件哦：
 
 - 使用HBuilderX作为开发工具，开发基于UniAppX的应用。
 - 集成UniCloud云服务，包括但不限于云函数、uni-pay支付服务以及uni-id身份认证服务。

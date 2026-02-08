@@ -54,8 +54,9 @@
     <!-- 用户信息卡片 -->
     <brutalist-card v-else class="user-card" taped>
       <view class="user-header">
-        <view class="user-avatar-wrapper">
+        <view class="user-avatar-wrapper" @click="goToProfile">
           <text class="user-avatar">{{ userStore.user?.nickname?.charAt(0) || 'U' }}</text>
+          <view class="edit-hint">✏️</view>
         </view>
         <view class="user-info-section">
           <text class="user-name">{{ userStore.user?.nickname || '校园用户' }}</text>
@@ -64,13 +65,13 @@
             <text>{{ userStore.user?.campus || '未设置校区' }}</text>
           </view>
         </view>
-        <brutalist-button class="logout-btn" outline @click="handleLogout">
-          退出
+        <brutalist-button class="profile-btn" accent taped @click="goToProfile">
+          我的
         </brutalist-button>
       </view>
 
       <!-- 用户标签 -->
-      <view v-if="userStore.user?.tags && userStore.user.tags.length > 0" class="user-tags">
+      <view v-if="userStore.user?.tags?.length > 0" class="user-tags">
         <view
           v-for="(tag, index) in userStore.user.tags"
           :key="index"
@@ -100,13 +101,39 @@
       </view>
     </brutalist-card>
 
-    <!-- 提示区域 -->
-    <view v-if="userStore.isLoggedIn" class="tips-section">
-      <brutalist-card class="tips-card" dashed>
-        <text class="tips-icon">💡</text>
-        <text class="tips-text">点击底部导航栏切换功能模块</text>
-      </brutalist-card>
-    </view>
+    <!-- 消息板块 -->
+    <brutalist-card class="message-section" dashed>
+      <view class="message-header">
+        <text class="message-title">消息通知</text>
+        <view class="message-unread" v-if="unreadCount > 0">
+          <text class="unread-badge">{{ unreadCount }}</text>
+        </view>
+      </view>
+      <view class="message-list" v-if="messages.length > 0">
+        <view
+          v-for="(message, index) in messages.slice(0, 3)"
+          :key="message._id || index"
+          class="message-item"
+          @click="viewMessage(message)"
+        >
+          <view class="message-icon" :class="'message-icon-' + message.type">
+            <text>{{ getMessageIcon(message.type) }}</text>
+          </view>
+          <view class="message-content">
+            <text class="message-title-text">{{ message.title || getMessageTitle(message.type) }}</text>
+            <text class="message-preview">{{ message.content }}</text>
+          </view>
+          <text class="message-time">{{ formatTime(message.timestamp || message.createTime) }}</text>
+        </view>
+      </view>
+      <view v-else class="no-messages">
+        <text class="no-messages-icon">🔔</text>
+        <text class="no-messages-text">暂无新消息</text>
+      </view>
+      <brutalist-button v-if="messages.length > 0" class="view-all-btn" outline @click="goToMessages">
+        查看全部消息
+      </brutalist-button>
+    </brutalist-card>
 
     <!-- 底部导航栏 -->
     <TabBar />
@@ -114,7 +141,8 @@
 </template>
 
 <script setup lang="uts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { onPullDownRefresh, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores/user'
 import BrutalistCard from '@/components/brutalist/BrutalistCard.vue'
 import BrutalistButton from '@/components/brutalist/BrutalistButton.vue'
@@ -122,9 +150,37 @@ import TabBar from '@/components/brutalist/TabBar.vue'
 
 const userStore = useUserStore()
 
+// 消息类型定义
+interface Message {
+  _id: string
+  type: string
+  title: string
+  content: string
+  timestamp: number
+  read: boolean
+  status?: string
+  orderInfo?: any
+}
+
+// 消息数据
+const messages = ref<Message[]>([])
+const unreadCount = computed(() => {
+  return messages.value.filter(m => !m.read).length
+})
+
 // 页面加载时检查登录状态
 onMounted(() => {
   userStore.checkLoginStatus()
+  if (userStore.isLoggedIn) {
+    loadMessages()
+  }
+})
+
+// 页面显示时刷新列表（从创建页面返回时触发）
+onShow(() => {
+  if (userStore.isLoggedIn) {
+    loadMessages()
+  }
 })
 
 // 页面跳转
@@ -132,6 +188,103 @@ function goToPage(page: string) {
   uni.switchTab({
     url: `/pages/${page}/index`
   })
+}
+
+// 跳转到个人中心
+function goToProfile() {
+  uni.navigateTo({
+    url: '/pages/user/index'
+  })
+}
+
+// 跳转到消息中心
+function goToMessages() {
+  uni.switchTab({
+    url: '/pages/messages/index'
+  })
+}
+
+// 查看消息
+function viewMessage(message: Message) {
+  uni.navigateTo({
+    url: `/pages/messages/index?messageId=${message._id}`
+  })
+}
+
+// 获取消息图标
+function getMessageIcon(type: string): string {
+  const iconMap: Record<string, string> = {
+    'order': '📦',
+    'comment': '💬',
+    'like': '❤️',
+    'system': '🔔',
+    'chat': '💬'
+  }
+  return iconMap[type] || '🔔'
+}
+
+// 获取消息标题
+function getMessageTitle(type: string): string {
+  const titleMap: Record<string, string> = {
+    'order': '订单通知',
+    'comment': '新评论',
+    'like': '点赞提醒',
+    'system': '系统消息',
+    'chat': '私信消息'
+  }
+  return titleMap[type] || '新消息'
+}
+
+// 格式化时间
+function formatTime(timestamp: number): string {
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+
+  if (diff < 60000) {
+    return '刚刚'
+  } else if (diff < 3600000) {
+    return Math.floor(diff / 60000) + '分钟前'
+  } else if (diff < 86400000) {
+    return Math.floor(diff / 3600000) + '小时前'
+  } else {
+    return Math.floor(diff / 86400000) + '天前'
+  }
+}
+
+// 加载消息
+async function loadMessages() {
+  try {
+    const db = uniCloud.database()
+    const res = await db.collection('messages')
+      .where('receiver == $env.UNI_USER_ID || sender == $env.UNI_USER_ID')
+      .orderBy('timestamp', 'desc')
+      .limit(20)
+      .get()
+
+    messages.value = res.data as Message[]
+  } catch (e) {
+    console.error('加载消息失败:', e)
+    // 模拟数据
+    messages.value = [
+      {
+        _id: '1',
+        type: 'order',
+        title: '订单通知',
+        content: '您的跑腿订单已接单',
+        timestamp: Date.now(),
+        read: false
+      },
+      {
+        _id: '2',
+        type: 'comment',
+        title: '新评论',
+        content: '用户A评论了您的帖子',
+        timestamp: Date.now() - 3600000,
+        read: false
+      }
+    ] as Message[]
+  }
 }
 
 // 处理登录
@@ -390,6 +543,7 @@ $yellow: #FFE66D;
   }
 
   .user-avatar-wrapper {
+    position: relative;
     width: 96rpx;
     height: 96rpx;
     border: 4rpx solid $black;
@@ -400,6 +554,23 @@ $yellow: #FFE66D;
     justify-content: center;
     margin-right: 24rpx;
     box-shadow: 4rpx 4rpx 0 $black;
+    cursor: pointer;
+  }
+
+  .edit-hint {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32rpx;
+    height: 32rpx;
+    background: $white;
+    border: 2rpx solid $black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18rpx;
+    box-shadow: 2rpx 2rpx 0 $black;
   }
 
   .user-avatar {
@@ -432,7 +603,7 @@ $yellow: #FFE66D;
     }
   }
 
-  .logout-btn {
+  .profile-btn {
     padding: 12rpx 24rpx !important;
     font-size: 24rpx !important;
   }
@@ -493,26 +664,143 @@ $yellow: #FFE66D;
   }
 }
 
-// 提示区域
-.tips-section {
-  margin-bottom: 32rpx;
-}
+// 消息板块
+.message-section {
+  margin-bottom: 32rpx !important;
 
-.tips-card {
-  text-align: center;
-  padding: 24rpx !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-
-  .tips-icon {
-    font-size: 32rpx;
+  .message-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20rpx;
   }
 
-  .tips-text {
+  .message-title {
+    font-size: 32rpx;
+    font-weight: 900;
+    color: $black;
+  }
+
+  .message-unread {
+    position: relative;
+  }
+
+  .unread-badge {
+    position: absolute;
+    top: -12rpx;
+    right: -12rpx;
+    min-width: 32rpx;
+    height: 32rpx;
+    padding: 0 8rpx;
+    border-radius: 16rpx;
+    background: $red;
+    color: $white;
+    font-size: 20rpx;
+    font-weight: 900;
+    text-align: center;
+    line-height: 32rpx;
+    box-shadow: 2rpx 2rpx 0 $black;
+  }
+
+  .message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12rpx;
+  }
+
+  .message-item {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    padding: 12rpx;
+    border: 2rpx solid #eee;
+    border-radius: 8rpx;
+    transition: all 0.2s ease;
+
+    &:active {
+      background: #f9f9f9;
+    }
+
+    .message-icon {
+      width: 56rpx;
+      height: 56rpx;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28rpx;
+      box-shadow: 2rpx 2rpx 0 $black;
+
+      &-order {
+        background: $yellow;
+      }
+
+      &-comment {
+        background: #FFE0E0;
+      }
+
+      &-like {
+        background: #E0FFE0;
+      }
+
+      &-system {
+        background: #E0E8FF;
+      }
+    }
+
+    .message-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .message-title-text {
+      display: block;
+      font-size: 26rpx;
+      font-weight: 700;
+      color: $black;
+      margin-bottom: 4rpx;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .message-preview {
+      display: block;
+      font-size: 22rpx;
+      color: #999;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .message-time {
+      font-size: 20rpx;
+      color: #999;
+      flex-shrink: 0;
+    }
+  }
+
+  .no-messages {
+    text-align: center;
+    padding: 40rpx 0;
+  }
+
+  .no-messages-icon {
+    display: block;
+    font-size: 48rpx;
+    margin-bottom: 12rpx;
+    opacity: 0.5;
+  }
+
+  .no-messages-text {
+    display: block;
     font-size: 24rpx;
-    color: #666;
+    color: #999;
+  }
+
+  .view-all-btn {
+    width: 100%;
+    margin-top: 16rpx;
   }
 }
 

@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "发布帖子",
+  "enablePullDownRefresh": false,
   "usingComponents": {
     "brutalist-card": "../../components/brutalist/BrutalistCard",
     "brutalist-button": "../../components/brutalist/BrutalistButton",

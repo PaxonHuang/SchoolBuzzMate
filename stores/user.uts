@@ -1,13 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-// 定义用户接口类型
+interface Address {
+  id: string
+  name: string
+  phone: string
+  campus: string
+  locationType: string
+  detail: string
+  isDefault: boolean
+}
+
 interface UserInfo {
   _id: string
   nickname: string
   avatar: string
   campus: string
   tags: string[]
+  gender?: string
+  contact?: string
+  addresses?: Address[]
 }
 
 // 登录返回类型
@@ -108,6 +120,13 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  function updateProfile(profile: Partial<UserInfo>) {
+    if (userInfo.value) {
+      userInfo.value = { ...userInfo.value, ...profile }
+      uni.setStorageSync('userInfo', userInfo.value)
+    }
+  }
+
   return {
     userInfo,
     token,
@@ -117,6 +136,7 @@ export const useUserStore = defineStore('user', () => {
     setToken,
     login,
     logout,
-    checkLoginStatus
+    checkLoginStatus,
+    updateProfile
   }
 })
