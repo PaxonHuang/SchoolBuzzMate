@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-校园社交系统（校趣闪搭）基于 UniAPP + Vue3 + UniCloud，支持微信小程序与 H5，集成 uni-id 统一身份认证、uni-admin 管理后台。
+校园社交系统（校趣闪搭）基于 UniAPP + Vue3 + UniCloud，支持微信小程序与 H5，集成 uni-id 统一身份认证、uni-admin 管理后台。注意该分支仅仅用于粗野主义登录样式前端展示，无后端。
 
 ## 图片预览
 
