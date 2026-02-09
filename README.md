@@ -1,7 +1,8 @@
 # 校趣闪搭校园服务平台
 
- 。
+前端预览：
 
+<img src="mergeSchoolBuzz.JPG" alt="mergeschoolbuzz" style="zoom:25%;" />
 ## 项目概述
 
 校趣闪搭是一个为校园学生提供全方位服务的平台，包括：
@@ -139,6 +140,7 @@ interface Message {
 - Node.js >= 16.x
 - HBuilderX (推荐最新版本)
 - 微信开发者工具
+- 微信支付商户号（用于支付功能）
 
 ### 安装步骤
 
@@ -179,7 +181,33 @@ npm run build:mp-weixin
 
 ### 环境变量配置
 
-在 `uniCloud/uni-config.json` 中配置：
+#### 1. 微信小程序配置
+
+在 `manifest.json` 中配置微信小程序 AppID：
+
+```json
+"mp-weixin": {
+  "appid": "你的微信小程序AppID",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": false,
+    "ignoreUploadUnusedFiles": true
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于展示附近的服务和匹配"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"]
+}
+```
+
+#### 2. UniCloud 配置
+
+在 `uniCloud-aliyun/uni-config.json` 中配置：
 
 ```json
 {
@@ -189,10 +217,38 @@ npm run build:mp-weixin
         "appid": "YOUR_WECHAT_APPID",
         "appsecret": "YOUR_WECHAT_APPSECRET"
       }
+    },
+    "oauthWeixin": {
+      "appid": "YOUR_WECHAT_APPID",
+      "appsecret": "YOUR_WECHAT_APPSECRET"
     }
   }
 }
 ```
+
+#### 3. uni-id 配置
+
+在 `uniCloud-aliyun/uni-id.config.json` 中配置：
+
+```json
+{
+  "tokenSecret": "${UNI_ID_TOKEN_SECRET}",
+  "oauth": {
+    "weixin": {
+      "appid": "${WECHAT_APPID}",
+      "secret": "${WECHAT_SECRET}"
+    }
+  },
+  "tokenExpiresIn": 7200,
+  "tokenExpiresThreshold": 3600,
+  "passwordStrength": "medium"
+}
+```
+
+**注意**: 在 UniCloud Web 控制台设置环境变量：
+- `UNI_ID_TOKEN_SECRET`: 自定义的 token 密钥（建议使用随机字符串）
+- `WECHAT_APPID`: 微信小程序 AppID
+- `WECHAT_SECRET`: 微信小程序 AppSecret
 
 ## 核心功能实现
 
@@ -289,30 +345,88 @@ const props = defineProps<Props>()
 
 ## 部署流程
 
-1. **上传云函数**
+### 1. 微信小程序配置
+
+#### 1.1 注册微信小程序
+
+1. 访问 [微信公众平台](https://mp.weixin.qq.com/)
+2. 注册小程序账号（选择"小程序"类型）
+3. 完成认证（个人或企业）
+4. 获取 AppID 和 AppSecret
+
+#### 1.2 配置服务器域名
+
+在微信小程序后台配置以下服务器域名：
+
+- **request 合法域名**: 你的 UniCloud 服务空间域名
+- **uploadFile 合法域名**: 你的 UniCloud 云存储域名
+- **downloadFile 合法域名**: 你的 UniCloud 云存储域名
+
+### 2. 微信支付配置
+
+#### 2.1 申请微信支付
+
+1. 在微信小程序后台开通微信支付功能
+2. 获取商户号（MCH_ID）
+3. 获取 API 密钥（API_KEY）
+4. 配置支付回调地址（UniCloud 云函数地址）
+
+#### 2.2 配置 uni-pay
+
+在 UniCloud Web 控制台配置支付参数：
+
+1. 进入"云函数" → "云函数配置"
+2. 添加以下环境变量：
+   - `WX_PAY_MCH_ID`: 微信支付商户号
+   - `WX_PAY_KEY`: 微信支付 API 密钥
+   - `WX_PAY_NOTIFY_URL`: 支付回调地址
+
+### 3. UniCloud 部署
+
+#### 3.1 关联云服务空间
+
+1. 在 HBuilderX 中打开项目
+2. 右键 `uniCloud-aliyun` 目录 → "关联云服务空间"
+3. 选择或创建阿里云服务空间
+
+#### 3.2 上传云函数
+
+1. 右键 `uniCloud-aliyun/cloudfunctions/uni-id-cf` → "上传部署"
+2. 右键 `uniCloud-aliyun/cloudfunctions/createPayment` → "上传部署"
+
+#### 3.3 初始化数据库
+
+1. 登录 UniCloud Web 控制台
+2. 进入"云数据库" → "数据表"
+3. 创建以下数据表：
+   - `users`（用户信息）
+   - `requests`（需求请求）
+   - `orders`（订单）
+   - `messages`（消息）
+   - `posts`（论坛帖子）
+4. 为每个数据表导入对应的 schema 文件
+
+### 4. 本地开发
 
 ```bash
-# 在 HBuilderX 中右键云函数目录
-# 选择 "上传部署"
-```
+# 安装依赖
+npm install
 
-2. **初始化数据库**
-
-```bash
-# 在 UniCloud Web 控制台
-# 创建数据库集合：users, requests, orders, messages
-# 导入对应的 schema 文件
-```
-
-3. **发布小程序**
-
-```bash
-# 1. 运行到微信开发者工具
+# 开发模式（运行到微信小程序）
 npm run dev:mp-weixin
+```
 
-# 2. 在微信开发者工具中预览
-# 3. 上传代码
-# 4. 提交审核
+### 5. 发布小程序
+
+```bash
+# 1. 构建生产版本
+npm run build:mp-weixin
+
+# 2. 在微信开发者工具中
+#    - 打开生成的 dist/dev/mp-weixin 目录
+#    - 预览测试
+#    - 上传代码
+#    - 在微信公众平台提交审核
 ```
 
 ## 测试
@@ -332,6 +446,116 @@ npm run dev:mp-weixin
 - ✅ UI 一致性：所有页面使用 Brutalist 组件
 - ✅ 支付闭环：完成沙箱环境支付全流程
 
+## 易错要点说明
+
+### 1. 微信小程序配置
+
+#### 1.1 AppID 配置错误
+**问题**: 小程序无法正常启动或登录失败
+
+**解决方案**:
+- 确保 `manifest.json` 中的 `mp-weixin.appid` 与微信小程序后台一致
+- 确保 `uni-config.json` 中的 `appid` 和 `appsecret` 正确
+- 不要将 AppSecret 提交到代码仓库，使用环境变量
+
+#### 1.2 域名配置问题
+**问题**: 网络请求失败
+
+**解决方案**:
+- 在微信小程序后台配置所有必需的服务器域名
+- 确保域名已备案
+- 开发阶段可在 `manifest.json` 中设置 `"urlCheck": false`
+
+#### 1.3 权限配置问题
+**问题**: 无法获取用户位置信息
+
+**解决方案**:
+- 在 `manifest.json` 中配置 `permission.scope.userLocation`
+- 添加 `requiredPrivateInfos: ["getLocation", "chooseLocation"]`
+- 在代码中正确处理用户授权
+
+### 2. 微信支付配置
+
+#### 2.1 支付参数配置错误
+**问题**: 支付创建失败
+
+**解决方案**:
+- 确保商户号（MCH_ID）正确
+- 确保 API 密钥（API_KEY）正确
+- 检查支付回调地址是否可访问
+- 确保订单金额格式正确（单位为分）
+
+#### 2.2 支付回调处理失败
+**问题**: 支付成功但订单状态未更新
+
+**解决方案**:
+- 确保云函数 `createPayment` 正确处理回调
+- 检查订单状态更新逻辑
+- 添加日志记录便于排查问题
+
+### 3. UniCloud 配置
+
+#### 3.1 环境变量未设置
+**问题**: 云函数调用失败
+
+**解决方案**:
+- 在 UniCloud Web 控制台设置所有必需的环境变量
+- 确保 `UNI_ID_TOKEN_SECRET` 已设置
+- 确保 `WECHAT_APPID` 和 `WECHAT_SECRET` 已设置
+
+#### 3.2 数据库权限问题
+**问题**: 数据库操作失败
+
+**解决方案**:
+- 检查数据库 Schema 的权限配置
+- 确保用户有相应的读写权限
+- 开发阶段可临时放宽权限限制
+
+#### 3.3 云函数未上传
+**问题**: 云函数调用失败
+
+**解决方案**:
+- 确保所有云函数已上传部署
+- 检查云函数日志确认是否正常运行
+
+### 4. 开发环境问题
+
+#### 4.1 依赖安装失败
+**问题**: npm install 失败
+
+**解决方案**:
+- 清除 node_modules 和 package-lock.json
+- 使用淘宝镜像: `npm config set registry https://registry.npmmirror.com`
+- 检查 Node.js 版本是否符合要求
+
+#### 4.2 编译错误
+**问题**: 项目无法编译
+
+**解决方案**:
+- 清除 unpackage 目录
+- 重新安装依赖
+- 检查 HBuilderX 版本是否最新
+
+### 5. 调试技巧
+
+#### 5.1 查看云函数日志
+
+1. 登录 UniCloud Web 控制台
+2. 进入"云函数" → "日志"
+3. 选择对应的云函数查看日志
+
+#### 5.2 本地调试
+
+- 使用微信开发者工具的调试功能
+- 在 HBuilderX 中查看控制台输出
+- 使用 `console.log` 输出调试信息
+
+#### 5.3 网络请求调试
+
+- 在微信开发者工具的"网络"面板查看请求详情
+- 检查请求参数和响应数据
+- 确保请求头和请求方法正确
+
 ## 常见问题
 
 ### 1. 云函数调用失败
@@ -341,6 +565,7 @@ npm run dev:mp-weixin
 - 云函数是否已上传
 - 服务空间是否关联
 - 权限配置是否正确
+- 环境变量是否已设置
 
 ### 2. 数据库操作失败
 
@@ -357,6 +582,7 @@ npm run dev:mp-weixin
 - uni-pay 配置是否正确
 - 商户号配置是否正确
 - 回调 URL 是否可访问
+- 订单金额格式是否正确
 
 ## 贡献指南
 
